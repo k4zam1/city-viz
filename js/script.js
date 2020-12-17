@@ -352,12 +352,12 @@ var main = function(){
 
     // バスの描画
     // 左回り
-    var busstopScheduleCounterClockwise = "https://raw.githubusercontent.com/k4zam1/nobel-winners-visualization/master/data/yonezawa_left_winter.csv";
-    var busstopRoute = "https://raw.githubusercontent.com/k4zam1/nobel-winners-visualization/master/data/yonezawa_left_winter_path.csv";
+    var busstopScheduleCounterClockwise = "https://raw.githubusercontent.com/k4zam1/city-viz/master/data/yonezawa_left_winter.csv";
+    var busstopRoute = "https://raw.githubusercontent.com/k4zam1/city-viz/master/data/yonezawa_left_winter_path.csv";
     drawBus(map,busstopScheduleCounterClockwise,busstopRoute);
     // 右回り
-    var busstopScheduleClockwise = "https://raw.githubusercontent.com/k4zam1/nobel-winners-visualization/master/data/yonezawa_right_winter.csv";
-    var busstopRoute = "https://raw.githubusercontent.com/k4zam1/nobel-winners-visualization/master/data/yonezawa_right_winter_path.csv";
+    var busstopScheduleClockwise = "https://raw.githubusercontent.com/k4zam1/city-viz/master/data/yonezawa_right_winter.csv";
+    var busstopRoute = "https://raw.githubusercontent.com/k4zam1/city-viz/master/data/yonezawa_right_winter_path.csv";
     drawBus(map,busstopScheduleClockwise,busstopRoute,routeDraw=false,{color:"orange",weight:5,opacity:0.5},buscolor="#487eb0");
 
     // クリック時のイベント
