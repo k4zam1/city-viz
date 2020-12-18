@@ -19,12 +19,13 @@ var svg = d3.select("#nobel-map")
 // 通信可視化, ip addr
 // 人口密度
 
+
 // 現在運行中のスケジュールを返す関数
 var getSchedule = function(times){
     // 時刻と何便かの計算
     var date = new Date();
     // テスト用
-    var date = new Date(2020,1,1,8,50);
+    //var date = new Date(2020,1,1,8,50);
     var now_h = date.getHours();
     var now_m = date.getMinutes();
     var schedule = [];
@@ -49,10 +50,10 @@ var getSchedule = function(times){
                 var start_m = idx_startservice.getMinutes();
                 var inService = false;
                 // 始発時間を超えている                      &&        終点時刻の中に収まっている
-                if((now_h >= start_h && now_m >= start_m) && (end_h == now_h && end_m > now_m)){
+                if(((now_h >= start_h && now_m >= start_m) && (end_h == now_h && end_m > now_m))){
                     inService = true;
                 }
-                else if((now_h >= start_h && now_m >= start_m) && (end_h > now_h)){
+                else if(((now_h > start_h) && end_h >= now_h) || (end_h > now_h)){
                     inService = true;
                 }
             }
@@ -180,7 +181,7 @@ var getAnimationInfo = function(schedule,route){
         // -> 必要な経路をrunningRoutesに抽出する
         var now = new Date();
         // テスト用
-        var now = new Date(2020,1,1,8,50);
+        //var now = new Date(2020,1,1,8,50);
         var now_h = now.getHours();
         var now_m = now.getMinutes();
         var now_s = now.getSeconds();
@@ -203,7 +204,7 @@ var getAnimationInfo = function(schedule,route){
                 //console.log("現在時刻 {}:{}".format(now_h,now_m));
                 //console.log("次のバス停の到着時刻 {}:{}".format(stop_h,stop_m));
                 // 現在時刻が過去のものはスキップ
-                if(now_h > stop_h || (now_h == stop_h && now_m > stop_m)){
+                if(now_h > stop_h || (now_h == stop_h && now_m > stop_m) || (now_h == stop_h && now_m == stop_m)){
                     continue;
                 }
 
@@ -222,18 +223,25 @@ var getAnimationInfo = function(schedule,route){
                     for(var p of routeInformation[idx].slice(pathidx)){
                         tmp.push(p);
                     }
-                    console.log(tmp);
                     runningRoutes.push(tmp);
                     // 現在時刻から到着時刻までのスピード[m/s]を再計算する
                     // timeRemaining[s]で次のバス停に到着する
-                    var timeRemaining = (stop_h-now_h)*3600+(stop_m-now_m)*60-now_s;
+                    //console.log(now_h,now_m,now_s);
+                    //console.log(stop_h,stop_m);
+                    var dnow = new Date(2020,1,1,now_h,now_m,now_s);
+                    var dstp = new Date(2020,1,1,stop_h,stop_m,0);
+                    var timeRemaining = (dstp-dnow)/1000;
                     var dist = distance(busstop.lng,busstop.lat,path.lng,path.lat);
-                    if(timeRemaining == 0){
+                    if(timeRemaining < 0){
                         runningSpeeds.push(0);
+                        console.log(0);
                     }
                     else {
                         runningSpeeds.push((dist*1000)/timeRemaining);
+                        console.log((dist*1000)/timeRemaining);
                     }
+                    console.log(timeRemaining);
+                    
                     flag = false;
                 }
                 else {
@@ -334,8 +342,6 @@ var drawBus = function(map,scheduleDataURL,routeDataURL,routeDraw=true,routeDraw
                     ).addTo(map);
                 }
             }
-
-
         });
     });
 }
@@ -358,7 +364,7 @@ var main = function(){
     // 右回り
     var busstopScheduleClockwise = "https://raw.githubusercontent.com/k4zam1/city-viz/master/data/yonezawa_right_winter.csv";
     var busstopRoute = "https://raw.githubusercontent.com/k4zam1/city-viz/master/data/yonezawa_right_winter_path.csv";
-    drawBus(map,busstopScheduleClockwise,busstopRoute,routeDraw=false,{color:"orange",weight:5,opacity:0.5},buscolor="#487eb0");
+    drawBus(map,busstopScheduleClockwise,busstopRoute,routeDraw=true,{color:"orange",weight:5,opacity:0.5},buscolor="#487eb0");
 
     // クリック時のイベント
     var polygon = [];
@@ -381,6 +387,7 @@ var main = function(){
         }
         L.circle([lat,lng],{radius:8}).addTo(map);
     });
+      
     // 現在地の追加
     navigator.geolocation.getCurrentPosition(function(position){
         var icon = L.divIcon({
@@ -445,4 +452,6 @@ var main = function(){
         fillColor: '#44bd32',
         fillOpacity: 0.3,
     }).addTo(map);
+
+    
 }();
