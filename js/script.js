@@ -326,10 +326,14 @@ var main = function(){
     var mapZoom = 15;
     var mapViewCenter = [37.910865111417195, 140.1084309247341];
     var map = L.map(mapID).setView(mapViewCenter,mapZoom);
-    var accessToken = 'pk.eyJ1Ijoicnlvc3VrZXRha2FoYXNoaSIsImEiOiJja2lqcmU2NHIwMDJzMnZvM29xMXp5aXBlIn0.WCIT7Q-q1jkmsiramG62rA';
-    var mapboxTiles = L.tileLayer('https://api.mapbox.com/styles/v1/mapbox/dark-v10/tiles/{z}/{x}/{y}?access_token='+accessToken, {
-           attribution: '© <a href="https://www.mapbox.com/feedback/">Mapbox</a> © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+
+    var access_token = "pk.eyJ1IjoiazR6YW0xIiwiYSI6ImNraXVqdnN2ZDBjcm8yeG51bXVwcmdkdGIifQ.8a5LkX3MhXE-soiWUBw6yQ";
+    mapbox = L.tileLayer('https://api.mapbox.com/styles/v1/k4zam1/ckiulgjmf240b19ph37u9wppu/tiles/256/{z}/{x}/{y}?access_token='+access_token, {
+        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+        maxZoom: 21,
     }).addTo(map);
+    
+
 
     // バスの描画
     // 左回り
@@ -402,11 +406,20 @@ var main = function(){
         fillColor: '#f9ca24',
         fillOpacity: 0.3,
     }).addTo(map);
+    // コンビニ
     L.polygon([
-        [37.902550676671474, 140.09925914795025],
-        [37.90259849691689, 140.09888595283437],
-        [37.902062405018775, 140.0987200883384],
-        [37.901976831302704, 140.0991283701746],
+        [37.90236552635729,140.0988372208667],
+        [37.90238617031507,140.09889622946505],
+        [37.90234223573132,140.09892573376422],
+        [37.902294595791574,140.09915372153048],
+        [37.90202672187383,140.0990775090759],
+        [37.90207946157486,140.09878618293442],
+        [37.90216774578224,140.09880898171107],
+        [37.90216986037272,140.0987707602326],
+        [37.90222748294032,140.09878484182994],
+        [37.902224339049646,140.09882181388096],
+        [37.90232517109635,140.09885120292893]
+
     ],
     {
         color: '#f9ca24',

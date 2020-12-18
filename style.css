@@ -1,9 +1,8 @@
 
 body {
     font-family: "Helvetica Neue",Arial, Helvetica, sans-serif;
-    background: #dcdcdc;
+    background: #2e2e2e;
     color:#3e3e3e;
-    background-image:url("snow1.png");
     animation: snow 30s linear infinite;
 }
 @keyframes snow {
