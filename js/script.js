@@ -3,7 +3,7 @@ var getSchedule = function(times){
     // 時刻と何便かの計算
     var date = new Date();
     // テスト用
-    var date = new Date(2020,1,1,8,50,50);
+    //var date = new Date(2020,1,1,8,50,50);
     var now_h = date.getHours();
     var now_m = date.getMinutes();
     var schedule = [];
@@ -159,7 +159,7 @@ var getAnimationInfo = function(schedule,route){
         // -> 必要な経路をrunningRoutesに抽出する
         var now = new Date();
         // テスト用
-        var now = new Date(2020,1,1,8,50,50);
+        //var now = new Date(2020,1,1,8,50,50);
         var now_h = now.getHours();
         var now_m = now.getMinutes();
         var now_s = now.getSeconds();
