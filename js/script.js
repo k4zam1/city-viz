@@ -1,31 +1,9 @@
-var width = 650;
-var height = 350;
-var projection = d3.geo.equirectangular()
-    .scale(160*(height/480))
-    .center([60,-20]);
-var path = d3.geo.path()
-    .projection(projection);
-var svg = d3.select("#nobel-map")
-    .append("svg")
-    .attr("width",width)
-    .attr("height",height);
-
-
-// 混雑状況
-// twitter
-// ツイート数,色
-// ポスト,自販機、コンビニ、・・・・
-// wifi spot
-// 通信可視化, ip addr
-// 人口密度
-
-
 // 現在運行中のスケジュールを返す関数
 var getSchedule = function(times){
     // 時刻と何便かの計算
     var date = new Date();
     // テスト用
-    //var date = new Date(2020,1,1,8,50);
+    var date = new Date(2020,1,1,8,50,50);
     var now_h = date.getHours();
     var now_m = date.getMinutes();
     var schedule = [];
@@ -181,7 +159,7 @@ var getAnimationInfo = function(schedule,route){
         // -> 必要な経路をrunningRoutesに抽出する
         var now = new Date();
         // テスト用
-        //var now = new Date(2020,1,1,8,50);
+        var now = new Date(2020,1,1,8,50,50);
         var now_h = now.getHours();
         var now_m = now.getMinutes();
         var now_s = now.getSeconds();
@@ -201,8 +179,6 @@ var getAnimationInfo = function(schedule,route){
                 var stoptime = busstop.stop.split(":");
                 var stop_h = stoptime[0];
                 var stop_m = stoptime[1];
-                //console.log("現在時刻 {}:{}".format(now_h,now_m));
-                //console.log("次のバス停の到着時刻 {}:{}".format(stop_h,stop_m));
                 // 現在時刻が過去のものはスキップ
                 if(now_h > stop_h || (now_h == stop_h && now_m > stop_m) || (now_h == stop_h && now_m == stop_m)){
                     continue;
@@ -210,12 +186,18 @@ var getAnimationInfo = function(schedule,route){
 
                 // 現在時刻に基づいて描画開始地点を経路に追加
                 if(flag){
+                    //console.log("現在時刻 {}:{}".format(now_h,now_m));
+                    //console.log("次のバス停の到着時刻 {}:{}".format(stop_h,stop_m));
                     // 中間点を追加した経路
                     var tmp = []
                     var path = {
                         "バス停名":"経路",
-                        "lng":(parseFloat(routeInformation[idx][pathidx-1].lng)+parseFloat(routeInformation[idx][pathidx].lng))/2,
-                        "lat":(parseFloat(routeInformation[idx][pathidx-1].lat)+parseFloat(routeInformation[idx][pathidx].lat))/2,
+                        "lng":(
+                            parseFloat(routeInformation[idx][pathidx-1].lng) + 
+                            parseFloat(routeInformation[idx][pathidx].lng))/2,
+                        "lat":(
+                            parseFloat(routeInformation[idx][pathidx-1].lat) + 
+                            parseFloat(routeInformation[idx][pathidx].lat))/2,
                         "isStation":"0",
                         "stop":"{}:{}".format(now_h,zeroPadding(now_m,2))
                     };
@@ -234,13 +216,13 @@ var getAnimationInfo = function(schedule,route){
                     var dist = distance(busstop.lng,busstop.lat,path.lng,path.lat);
                     if(timeRemaining < 0){
                         runningSpeeds.push(0);
-                        console.log(0);
+                        //console.log(0);
                     }
                     else {
                         runningSpeeds.push((dist*1000)/timeRemaining);
-                        console.log((dist*1000)/timeRemaining);
+                        //console.log((dist*1000)/timeRemaining);
                     }
-                    console.log(timeRemaining);
+                    //console.log(timeRemaining);
                     
                     flag = false;
                 }
@@ -266,39 +248,32 @@ var getAnimationInfo = function(schedule,route){
 
 // アニメーション関連
 // アニメーションは各経路間の等速直線運動で表現する
-// 現在のアニメーションのステップどこまで進んだかを
-// 記録するためにanimeStepを管理する
-var animeStep = 0;
-var incAnimeStep = function(map,speeds,polylines,buscolor){
-    animeStep++;
-    // 1周終わった
-    if(animeStep > speeds.length-1){
-        animeStep = 0;
-    }
-    buildAnimation(map,speeds,polylines,buscolor);
-}
-// 現在のステップ数(animeStep)に基づいてアニメーションを生成する
+// 現在のステップ数(step)に基づいてアニメーションを生成する
 // 生成されたアニメーションの実行が終了すると
 // 次の経路を生成するための処理が行われ、経路全体を描画するまで実行が続く
-var buildAnimation = function(map,speeds,polylines,buscolor="#eb4d4b"){
+var buildAnimation = function(map,speeds,polylines,buscolor="#eb4d4b",step=0){
     var busicon = L.divIcon({
         html: '<i class="fas fa-dot-circle fa-2x" style="color:{}"></i>'.format(buscolor),
         iconSize: [10,10],
         className: 'myDivIcon',
     });
     var latlngs = [];
-    for(var point of polylines[animeStep]){
+    for(var point of polylines[step]){
         latlngs.push(L.latLng(parseFloat(point.lng),parseFloat(point.lat)));
     }
     var animatedMarker = L.animatedMarker(latlngs,{
         icon: busicon,
-        distance: speeds[animeStep],
+        distance: speeds[step],
         interval: 1000,
         onEnd:function(){
             map.removeLayer(this);
-            incAnimeStep(map,speeds,polylines,buscolor);
+            step++;
+            if(step < speeds.length){
+                buildAnimation(map,speeds,polylines,buscolor,step);
+            }
         }
     }).addTo(map);
+    //! zoomend時にマーカーの位置がずれてしまう問題を修正する
 }
 
 
@@ -364,7 +339,7 @@ var main = function(){
     // 右回り
     var busstopScheduleClockwise = "https://raw.githubusercontent.com/k4zam1/city-viz/master/data/yonezawa_right_winter.csv";
     var busstopRoute = "https://raw.githubusercontent.com/k4zam1/city-viz/master/data/yonezawa_right_winter_path.csv";
-    drawBus(map,busstopScheduleClockwise,busstopRoute,routeDraw=true,{color:"orange",weight:5,opacity:0.5},buscolor="#487eb0");
+    drawBus(map,busstopScheduleClockwise,busstopRoute,routeDraw=true,{color:"green",weight:5,opacity:0.5},buscolor="#487eb0");
 
     // クリック時のイベント
     var polygon = [];
@@ -453,5 +428,23 @@ var main = function(){
         fillOpacity: 0.3,
     }).addTo(map);
 
-    
+
+    // 時計を表示
+    var options = {
+        title:'<i class="far fa-clock"></i> {}:{}:{}'.format("00","00","00"),
+        content:'　<i class="fas fa-dot-circle fa-2x" style="color:#eb4d4b"></i> 左回りバス<br/>　<i class="fas fa-dot-circle fa-2x" style="color:#487eb0"></i> 右回りバス',
+        modal: false,
+        position:'bottomLeft', // 'center', 'top', 'topRight', 'right', 'bottomRight', 'bottom', 'bottomLeft', 'left', 'topLeft'
+        closeButton:false,
+    };
+    var watch =  L.control.window(map, options).show();
+    setInterval(function(){
+        var now = new Date();
+        var now_h = now.getHours();
+        var now_m = now.getMinutes();
+        var now_s = now.getSeconds();
+        watch.title('　<i class="far fa-clock"></i> {}:{}:{}'.format(
+            zeroPadding(now_h,2),zeroPadding(now_m,2),zeroPadding(now_s,2)));
+    },1000);
+
 }();
