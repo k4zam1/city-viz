@@ -763,6 +763,21 @@ var main = function(){
     });
 
     // エリアの描画
+    d3.json("https://raw.githubusercontent.com/k4zam1/city-viz/master/data/area.json",function(error,areas){
+        if(error){
+            console.warn(error);
+        }
+        console.log(areas);
+        for(var area of areas){
+            L.polygon(area.area,{
+                color:area.defaultColor,
+                opacity:0.2,
+                fillColor:area.defaultColor,
+                fillOpacity:0.3
+            }).addTo(map);
+        }
+    })
+    /*
     L.polygon([
         [37.90192862650271, 140.10269219187714],
         [37.90132020529082, 140.10618593633077],
@@ -814,7 +829,7 @@ var main = function(){
         fillColor: '#44bd32',
         fillOpacity: 0.3,
     }).addTo(map);
-
+    */
 
     // 時計を表示
     var options = {
