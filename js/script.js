@@ -761,6 +761,7 @@ var main = function(){
             routeWhileDragging: true,
         }).addTo(map);
     });
+
     // エリアの描画
     L.polygon([
         [37.90192862650271, 140.10269219187714],
