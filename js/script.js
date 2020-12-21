@@ -51,6 +51,11 @@ class Bus {
             iconSize: [10,10],
             className: 'myDivIcon',
         });
+        this.busstopIcon = L.divIcon({
+            html: '<i class="fas fa-pause-circle" style="color:#eccc68;font-size:15px;"></i>',
+            iconSize: [10,10],
+            className: 'myDivIcon',
+        });
         this.routeColor = options.routeColor;
         this.routeColorSleep = options.routeColorSleep;
         this.routeDraw = options.routeDraw;
@@ -377,13 +382,8 @@ class Bus {
             // バス停マーカーを追加
             if(that.markerDraw){
                 var markers = L.markerClusterGroup();
-                var markerIcon = L.divIcon({
-                    html: '<i class="fas fa-pause-circle" style="color:#eccc68;font-size:15px;"></i>',
-                    iconSize: [10,10],
-                    className: 'myDivIcon',
-                });
                 for(var d of stops){
-                    var marker = L.marker([d.lng,d.lat],{icon:markerIcon});
+                    var marker = L.marker([d.lng,d.lat],{icon:that.busstopIcon});
                     marker.bindPopup("<b>"+d["バス停名"]+"<b>");
                     markers.addLayer(marker);
                 }
@@ -411,7 +411,7 @@ class Bus {
                         if(schedule.length > 2){
                             clearInterval(iid);
                         }
-                    },1000*10);
+                    },1000*60*1);
                 }
                 // 経路の描画
                 if(that.routeDraw){
