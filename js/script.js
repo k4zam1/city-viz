@@ -478,18 +478,22 @@ var main = function(){
     //! モード選択機能
     //! 経路検索,情報追加,その他カスタマイズ機能
     // クリック時のイベント
-    var polygon = [];
-    map.on("click",function(e){
-        var lat = e.latlng.lat;
-        var lng = e.latlng.lng;
-        polygon.push([lat,lng]);
-        // polygonの中身を表示
-        console.log("選択中({})：".format(polygon.length));
-        for(var poly of polygon){
-            console.log("[{},{}],".format(poly[0],poly[1]));
-        }
-        L.circle([lat,lng],{radius:0.5}).addTo(map);
-    });
+    var debug = false;
+    if(debug){
+        var polygon = [];
+        map.on("click",function(e){
+            var lat = e.latlng.lat;
+            var lng = e.latlng.lng;
+            polygon.push([lat,lng]);
+            // polygonの中身を表示
+            console.log("選択中({})：".format(polygon.length));
+            for(var poly of polygon){
+                console.log("[{},{}],".format(poly[0],poly[1]));
+            }
+            L.circle([lat,lng],{radius:0.5}).addTo(map);
+        });
+    }
+
       
     // 現在地の追加
     navigator.geolocation.getCurrentPosition(function(position){
