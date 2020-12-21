@@ -547,6 +547,7 @@ var main = function(){
     })
 
     // 時計を表示
+    //! 天気予報の追加
     var options = {
         title:'<i class="far fa-clock"></i> {}:{}:{}'.format("00","00","00"),
         content:"",
@@ -563,5 +564,4 @@ var main = function(){
         watch.title('　<i class="far fa-clock"></i> {}:{}:{}'.format(
             zeroPadding(now_h,2),zeroPadding(now_m,2),zeroPadding(now_s,2)));
     },1000);
-
 }();
