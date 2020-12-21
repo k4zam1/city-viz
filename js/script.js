@@ -354,21 +354,21 @@ class Bus {
 // xx:xx 形式の文字列どうしを比較する
 var inTime = function(now_t,start_t,end_t){
     var now_t_splitted = now_t.split(":");
-    var now_h = now_t_splitted[0];
-    var now_m = now_t_splitted[1];
+    var now_h = parseInt(now_t_splitted[0]);
+    var now_m = parseInt(now_t_splitted[1]);
     var start_t_splitted = start_t.split(":");
-    var start_h = start_t_splitted[0];
-    var start_m = start_t_splitted[1];
+    var start_h = parseInt(start_t_splitted[0]);
+    var start_m = parseInt(start_t_splitted[1]);
     var end_t_splitted = end_t.split(":");
-    var end_h = end_t_splitted[0];
-    var end_m = end_t_splitted[1];
+    var end_h = parseInt(end_t_splitted[0]);
+    var end_m = parseInt(end_t_splitted[1]);
 
     var intime = true;
     // 範囲外ならintime=false
-    if(now_h > end_h || (now_m > end_m)){
+    if(now_h > end_h || (now_h == end_h && now_m > end_m)){
         intime = false;
     }
-    else if(start_h > now_h || (start_m > now_m)){
+    else if(start_h > now_h || (start_h == now_h && start_m > now_m)){
         intime = false;
     }
     return intime;
@@ -424,20 +424,12 @@ var main = function(){
         var lat = e.latlng.lat;
         var lng = e.latlng.lng;
         polygon.push([lat,lng]);
-        if(polygon.length >= 5){
-            L.polygon(polygon,
-            {
-                color: '#f9ca24',
-                opacity:0.2,
-                fillColor: '#f9ca24',
-                fillOpacity: 0.3,
-            }).addTo(map);
-            // polygonの中身を表示
-            for(var poly of polygon){
-                console.log("[{},{}]".format(poly[0],poly[1]));
-            }
+        // polygonの中身を表示
+        console.log("選択中({})：".format(polygon.length));
+        for(var poly of polygon){
+            console.log("[{},{}],".format(poly[0],poly[1]));
         }
-        L.circle([lat,lng],{radius:8}).addTo(map);
+        L.circle([lat,lng],{radius:0.5}).addTo(map);
     });
       
     // 現在地の追加
@@ -467,7 +459,6 @@ var main = function(){
         if(error){
             console.warn(error);
         }
-        console.log(areas);
         for(var area of areas){
             // 営業時間内ならdefaultColor
             var color = area.defaultColor;
@@ -475,14 +466,12 @@ var main = function(){
             var now_h = now.getHours();
             var now_m = now.getMinutes();
             var now_d = now.getDay();
+            var open = area.open[0];
+            var close = area.open[1];
+            var now_t = "{}:{}".format(now_h,now_m);
 
-            if(area.workday[now_d] == 1){
-                var open = area.open[0];
-                var close = area.open[1];
-                var now_t = "{}:{}".format(now_h,now_m);
-                if(!inTime(now_t,open,close)){
-                    color = area.sleepColor;
-                }
+            if(area.workday[now_d] == 0 || !inTime(now_t,open,close)){
+                color = area.sleepColor;
             }
 
             // 描画
