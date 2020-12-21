@@ -1,3 +1,44 @@
+// xx:xx 形式の文字列どうしを比較する
+
+var strTimeSplit = function(str_t){
+    // xx:xx形式の時間をhour,minに分割
+    var splitted = str_t.split(":");
+    var hour = parseInt(splitted[0]);
+    var min = parseInt(splitted[1]);
+    return {h:hour,m:min};
+}
+
+var isPast = function(t1str,t2str){
+    var t1 = strTimeSplit(t1str);
+    var t2 = strTimeSplit(t2str);
+    var isPast = true;
+    if(t1.h > t2.h || (t1.h == t2.h && t1.m > t2.m)){
+        isPast = false;
+    }
+    return isPast;
+
+}
+var isFuture = function(t1str,t2str){
+    var isFuture = true;
+    if(isPast(t1str,t2str)){
+        isFuture = false;
+    }
+    return isFuture;
+}
+
+var inTime = function(now_t,start_t,end_t){
+    var intime = true;
+    // now_tがtart_tより過去　->　時間外
+    if(isPast(now_t,start_t)){
+        intime = false;
+    }
+    // now_tがend_tより未来 -> 時間外
+    else if(isFuture(now_t,end_t)){
+        intime = false;
+    }
+    return intime;
+}
+
 
 class Bus {
     constructor(options){
@@ -6,7 +47,7 @@ class Bus {
         this.routeDataURL = options.routeDataURL;
         this.busColor = options.busColor;
         this.busIcon = L.divIcon({
-            html: '<i class="fas fa-dot-circle fa-2x" style="color:{}"></i>'.format(this.busColor),
+            html: '<i class="fas fa-bus fa-2x" style="color:{}"></i>'.format(this.busColor),
             iconSize: [10,10],
             className: 'myDivIcon',
         });
@@ -15,7 +56,7 @@ class Bus {
         this.routeDraw = options.routeDraw;
         this.markerDraw = options.markerDraw;
         this.busMarker = null;
-        this.onend = true;
+        this.sleepWait = false;
     }
     // 現在運行中のスケジュールを返す関数
     _getSchedule(times){
@@ -37,6 +78,14 @@ class Bus {
                 // 運行中か判定する
                 // idx < 0なら確実に停止中
                 if(idx > 0){
+                    var start = times[0][idx];
+                    var end = times[times.length-1][idx];
+                    var now_t = "{}:{}".format(now_h,now_m);
+                    var inService = false;
+                    if(inTime(now_t,start,end)){
+                        inService = true;
+                    }
+                    /*
                     var idx_Endtime = times[times.length-1][idx].split(":");
                     var idx_endservice = new Date(2020,1,1,parseInt(idx_Endtime[0]),parseInt(idx_Endtime[1]));
                     var end_h = idx_endservice.getHours();
@@ -53,6 +102,7 @@ class Bus {
                     else if(((now_h > start_h) && end_h >= now_h) || (end_h > now_h)){
                         inService = true;
                     }
+                    */
                 }
                 // idx便が運行中
                 // idx便のスケジュールを格納する
@@ -114,15 +164,18 @@ class Bus {
         // 停止中
         if(schedule.length < 1){
             //console.log("始発までお待ち下さい");
+            animationInformation.state = 0;
             return animationInformation;
         }
         // 休憩中
         else if(schedule.length == 2){
             //console.log("休憩中");
+            animationInformation.state = 1;
             return animationInformation;
         }
         // 運行中
         else {
+            animationInformation.state = 2;
             // 途中経路の緯度経度と時刻を補間してスケジュールを返す
             //console.log("運行中");
             // バス停の到着時間を追加
@@ -185,16 +238,26 @@ class Bus {
                     }
                     // はじめて現在時刻より未来のバス停を見つけたとき
                     // ひとつ前のバス停と,そのバス停の間の経路を走っている
+
+                    // 現在時刻が過去のものはスキップ
+                    /*
                     var stoptime = busstop.stop.split(":");
                     var stop_h = stoptime[0];
                     var stop_m = stoptime[1];
-                    // 現在時刻が過去のものはスキップ
                     if(now_h > stop_h || (now_h == stop_h && now_m > stop_m) || (now_h == stop_h && now_m == stop_m)){
                         continue;
                     }
+                    */
+                    if(isPast(busstop.stop,"{}:{}".format(now_h,now_m))){
+                        continue;
+                    }
+                    
 
                     // 現在時刻に基づいて描画開始地点を経路に追加
                     if(flag){
+                        var stoptime = busstop.stop.split(":");
+                        var stop_h = stoptime[0];
+                        var stop_m = stoptime[1];
                         //console.log("現在時刻 {}:{}".format(now_h,now_m));
                         //console.log("次のバス停の到着時刻 {}:{}".format(stop_h,stop_m));
                         // 中間点を追加した経路
@@ -278,9 +341,15 @@ class Bus {
                 else {
                     that.draw();
                 }
+            },
+            popup:function(){
+                var path = polylines[step];
+                var station = polylines[step][path.length-1]["バス停名"];
+                var stop = polylines[step][path.length-1].stop;
+                return "<b>{}</b>行き<br/>到着予定 <b>{}</b>".format(station,stop);
             }
+
         }).addTo(this.map);
-        //! zoomend時にマーカーの位置がずれてしまう問題を修正する
         this.map.on("zoomend",function(){
             that.onend = false;
             that.busMarker.stop();
@@ -307,10 +376,14 @@ class Bus {
             }
             // バス停マーカーを追加
             if(that.markerDraw){
-                //! 予定到着時刻を追加する
                 var markers = L.markerClusterGroup();
+                var markerIcon = L.divIcon({
+                    html: '<i class="fas fa-pause-circle" style="color:#eccc68;font-size:15px;"></i>',
+                    iconSize: [10,10],
+                    className: 'myDivIcon',
+                });
                 for(var d of stops){
-                    var marker = L.marker([d.lng,d.lat]);
+                    var marker = L.marker([d.lng,d.lat],{icon:markerIcon});
                     marker.bindPopup("<b>"+d["バス停名"]+"<b>");
                     markers.addLayer(marker);
                 }
@@ -331,15 +404,26 @@ class Bus {
                     that._buildAnimation(speeds,routes);
                 }
                 else {
-                    // 休憩中,終電後のときの処理
-                    //! 稼働中の色を暗くする
+                    // 休憩中 or 終電後
+                    // 運行開始まで待つ
+                    var iid = setInterval(function(){
+                        var schedule = that._getSchedule(stops);
+                        if(schedule.length > 2){
+                            clearInterval(iid);
+                        }
+                    },1000*10);
                 }
                 // 経路の描画
                 if(that.routeDraw){
+                    var color = that.routeColor;
+                    // 現在運行中じゃなければ色を変える
+                    if(animeInfo.state != 2){
+                        color = that.routeColorSleep;
+                    }
                     for(var paths of routeInfo){
                         L.polyline(
                             paths.map(function(stop){return [parseFloat(stop.lng),parseFloat(stop.lat)]}),
-                            {color:that.routeColor,weight:6,opacity:0.7}
+                            {color:color,weight:6,opacity:0.7}
                         ).addTo(that.map);
                     }
                     that.routeDraw = false;
@@ -351,47 +435,23 @@ class Bus {
 
 
 
-// xx:xx 形式の文字列どうしを比較する
-var inTime = function(now_t,start_t,end_t){
-    var now_t_splitted = now_t.split(":");
-    var now_h = parseInt(now_t_splitted[0]);
-    var now_m = parseInt(now_t_splitted[1]);
-    var start_t_splitted = start_t.split(":");
-    var start_h = parseInt(start_t_splitted[0]);
-    var start_m = parseInt(start_t_splitted[1]);
-    var end_t_splitted = end_t.split(":");
-    var end_h = parseInt(end_t_splitted[0]);
-    var end_m = parseInt(end_t_splitted[1]);
-
-    var intime = true;
-    // 範囲外ならintime=false
-    if(now_h > end_h || (now_h == end_h && now_m > end_m)){
-        intime = false;
-    }
-    else if(start_h > now_h || (start_h == now_h && start_m > now_m)){
-        intime = false;
-    }
-    return intime;
-}
-
-
 var main = function(){
-    var mapID = 'map';
-    var mapZoom = 15;
-    var mapView = [37.910865111417195, 140.1084309247341];
-    var map = L.map(mapID).setView(mapView,mapZoom);
-
-    var access_token = "pk.eyJ1IjoiazR6YW0xIiwiYSI6ImNraXVqdnN2ZDBjcm8yeG51bXVwcmdkdGIifQ.8a5LkX3MhXE-soiWUBw6yQ";
-    mapbox = L.tileLayer('https://api.mapbox.com/styles/v1/k4zam1/ckiulgjmf240b19ph37u9wppu/tiles/256/{z}/{x}/{y}?access_token='+access_token, {
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        maxZoom: 21,
+    var mapOps = {
+        id:"map",
+        zoomDefault:15,
+        viewDefault:[37.910865111417195, 140.1084309247341],
+        tileURL:'https://api.mapbox.com/styles/v1/k4zam1/ckiulgjmf240b19ph37u9wppu/tiles/256/{z}/{x}/{y}?access_token='+
+        "pk.eyJ1IjoiazR6YW0xIiwiYSI6ImNraXVqdnN2ZDBjcm8yeG51bXVwcmdkdGIifQ.8a5LkX3MhXE-soiWUBw6yQ",
+        tileAttribution:`© <a href="https://apps.mapbox.com/feedback/">Mapbox</a> 
+        © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>`
+    };
+    var map = L.map(mapOps.id).setView(mapOps.viewDefault,mapOps.zoomDefault);
+    var mapStyle = L.tileLayer(mapOps.tileURL, {
+        attribution:mapOps.tileAttribution,
+        maxZoom:21
     }).addTo(map);
-    
-
 
     // バスの描画
-    // 左回り
-    //drawBus(map,busstopScheduleCounterClockwise,busstopRoute);
     var busLeft = new Bus({
         map:map,
         scheduleDataURL:"https://raw.githubusercontent.com/k4zam1/city-viz/master/data/yonezawa_left_winter.csv",
@@ -403,8 +463,6 @@ var main = function(){
         markerDraw:true,
     });
     busLeft.draw();
-    // 右回り
-    //drawBus(map,busstopScheduleClockwise,busstopRoute,routeDraw=true,{color:busLineColorDefault,weight:6,opacity:0.7},buscolor=busClockwiseColorDefault);
     var busRight = new Bus({
         map:map,
         scheduleDataURL:"https://raw.githubusercontent.com/k4zam1/city-viz/master/data/yonezawa_right_winter.csv",
@@ -417,7 +475,8 @@ var main = function(){
     });
     busRight.draw();
 
-
+    //! モード選択機能
+    //! 経路検索,情報追加,その他カスタマイズ機能
     // クリック時のイベント
     var polygon = [];
     map.on("click",function(e){
@@ -455,7 +514,8 @@ var main = function(){
     });
 
     // エリアの描画
-    d3.json("https://raw.githubusercontent.com/k4zam1/city-viz/main/data/area.json",function(error,areas){
+    var areaDataURL = "https://raw.githubusercontent.com/k4zam1/city-viz/main/data/area.json";
+    d3.json(areaDataURL,function(error,areas){
         if(error){
             console.warn(error);
         }
@@ -463,17 +523,13 @@ var main = function(){
             // 営業時間内ならdefaultColor
             var color = area.defaultColor;
             var now = new Date();
-            var now_h = now.getHours();
-            var now_m = now.getMinutes();
-            var now_d = now.getDay();
             var open = area.open[0];
             var close = area.open[1];
-            var now_t = "{}:{}".format(now_h,now_m);
-
-            if(area.workday[now_d] == 0 || !inTime(now_t,open,close)){
+            var now_t = "{}:{}".format(now.getHours(),now.getMinutes());
+            // 営業時間外
+            if(area.workday[now.getDay()] == 0 || !inTime(now_t,open,close)){
                 color = area.sleepColor;
             }
-
             // 描画
             L.polygon(area.area,{
                 color:color,
@@ -487,7 +543,7 @@ var main = function(){
     // 時計を表示
     var options = {
         title:'<i class="far fa-clock"></i> {}:{}:{}'.format("00","00","00"),
-        content:busLeft.busIcon.options.html + '左回りバス<br/>'+ busRight.busIcon.options.html +'右回りバス',
+        content:"",
         modal: false,
         position:'bottomLeft', // 'center', 'top', 'topRight', 'right', 'bottomRight', 'bottom', 'bottomLeft', 'left', 'topLeft'
         closeButton:false,
