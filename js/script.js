@@ -763,7 +763,7 @@ var main = function(){
     });
 
     // エリアの描画
-    d3.json("https://raw.githubusercontent.com/k4zam1/city-viz/master/data/area.json",function(error,areas){
+    d3.json("https://raw.githubusercontent.com/k4zam1/city-viz/main/data/area.json",function(error,areas){
         if(error){
             console.warn(error);
         }
