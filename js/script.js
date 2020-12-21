@@ -551,7 +551,7 @@ var main = function(){
         title:'<i class="far fa-clock"></i> {}:{}:{}'.format("00","00","00"),
         content:"",
         modal: false,
-        position:'bottomLeft', // 'center', 'top', 'topRight', 'right', 'bottomRight', 'bottom', 'bottomLeft', 'left', 'topLeft'
+        position:'bottomLeft',
         closeButton:false,
     };
     var watch =  L.control.window(map, options).show();
