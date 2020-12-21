@@ -501,6 +501,7 @@ var main = function(){
         var marker = L.marker([position.coords.latitude,position.coords.longitude],{icon:icon,opacity:0.7})
             .bindPopup("<b>You<b>")
             .addTo(map);
+        /*
         L.Routing.control({
             waypoints: [
                 L.latLng(position.coords.latitude,position.coords.longitude),
@@ -511,6 +512,7 @@ var main = function(){
             },
             routeWhileDragging: true,
         }).addTo(map);
+        */
     });
 
     // エリアの描画
