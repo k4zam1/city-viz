@@ -435,7 +435,7 @@ class Bus {
 
 
 //! iconsをアップデートする
-var openWeatherMap = "http://api.openweathermap.org/data/2.5/weather?q=Yonezawa,jp&appid=8ab25e8d4baa9730b8beb3fb14b07042&units=metric&lang=ja";
+var openWeatherMap = "https://api.openweathermap.org/data/2.5/weather?q=Yonezawa,jp&appid=8ab25e8d4baa9730b8beb3fb14b07042&units=metric&lang=ja";
 var setWeatherInfo = function(window){
     d3.json(openWeatherMap,function(error,weather){
         var icon = "img/icons/" + weather.weather[0].icon + ".png";
