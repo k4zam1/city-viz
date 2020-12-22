@@ -434,6 +434,27 @@ class Bus {
 }
 
 
+//! iconsをアップデートする
+var openWeatherMap = "http://api.openweathermap.org/data/2.5/weather?q=Yonezawa,jp&appid=8ab25e8d4baa9730b8beb3fb14b07042&units=metric&lang=ja";
+var setWeatherInfo = function(window){
+    d3.json(openWeatherMap,function(error,weather){
+        var icon = "img/icons/" + weather.weather[0].icon + ".png";
+        var iconSize = 70;
+        window.content(`
+        {}<br/>
+        気温:{}℃<br/>
+        湿度:{}%<br/>
+        気圧:{}hPa<br/>
+        風速:{}m/s<br/>`.format(
+            '<center><img src="{}" style="width:{}px;height:{}px;"></center>'.format(icon,iconSize,iconSize),
+            weather.main.temp,
+            weather.main.humidity,
+            weather.main.pressure,
+            weather.wind.speed));
+    });
+}
+
+
 
 var main = function(){
     var mapOps = {
@@ -547,7 +568,6 @@ var main = function(){
     })
 
     // 時計を表示
-    //! 天気予報の追加
     var options = {
         title:'<i class="far fa-clock"></i> {}:{}:{}'.format("00","00","00"),
         content:"",
@@ -556,6 +576,8 @@ var main = function(){
         closeButton:false,
     };
     var watch =  L.control.window(map, options).show();
+    setWeatherInfo(watch);
+    // 時計の更新
     setInterval(function(){
         var now = new Date();
         var now_h = now.getHours();
@@ -564,4 +586,8 @@ var main = function(){
         watch.title('　<i class="far fa-clock"></i> {}:{}:{}'.format(
             zeroPadding(now_h,2),zeroPadding(now_m,2),zeroPadding(now_s,2)));
     },1000);
+    // 気象情報の更新
+    setInterval(function(){
+        setWeatherInfo(watch);
+    },1000*60);
 }();
