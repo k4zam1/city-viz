@@ -466,7 +466,7 @@ var main = function(){
         tileAttribution:`© <a href="https://apps.mapbox.com/feedback/">Mapbox</a> 
         © <a href="http://www.openstreetmap.org/copyright">OpenStreetMap</a>`
     };
-    var map = L.map(mapOps.id).setView(mapOps.viewDefault,mapOps.zoomDefault);
+    var map = L.map(mapOps.id,{zoomControl:false}).setView(mapOps.viewDefault,mapOps.zoomDefault);
     var mapStyle = L.tileLayer(mapOps.tileURL, {
         attribution:mapOps.tileAttribution,
         maxZoom:21
@@ -572,7 +572,7 @@ var main = function(){
         title:'<i class="far fa-clock"></i> {}:{}:{}'.format("00","00","00"),
         content:"",
         modal: false,
-        position:'bottomLeft',
+        position:'topLeft',
         closeButton:false,
     };
     var watch =  L.control.window(map, options).show();
