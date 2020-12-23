@@ -438,17 +438,36 @@ class Bus {
 var openWeatherMap = "https://api.openweathermap.org/data/2.5/weather?q=Yonezawa,jp&appid=8ab25e8d4baa9730b8beb3fb14b07042&units=metric&lang=ja";
 var setWeatherInfo = function(window){
     d3.json(openWeatherMap,function(error,weather){
-        var icon = "img/icons/" + weather.weather[0].icon + ".png";
-        var iconSize = 23;
+        var icon = {
+            "01d":'<i class="fas fa-sun"></i>',
+            "01n":'<i class="far fa-moon"></i>',
+            "02d":'<i class="fas fa-cloud-sun"></i>',
+            "02n":'<i class="fas fa-cloud-moon"></i>',
+            "03d":'<i class="fas fa-cloud-sun"></i>',
+            "03n":'<i class="fas fa-cloud-moon"></i>',
+            "04d":'<i class="fas fa-cloud"></i>',
+            "04n":'<i class="fas fa-cloud"></i>',
+            "09d":'<i class="fas fa-cloud-rain"></i>',
+            "09n":'<i class="fas fa-cloud-rain"></i>',
+            "10d":'<i class="fas fa-cloud-showers-heavy"></i>',
+            "10n":'<i class="fas fa-cloud-showers-heavy"></i>',
+            "11d":'<i class="far fa-bolt"></i>',
+            "11n":'<i class="far fa-bolt"></i>',
+            "13d":'<i class="fal fa-snowman"></i>',
+            "13n":'<i class="fal fa-snowman"></i>',
+            "50d":'<i class="fas fa-wind"></i>',
+            "50n":'<i class="fas fa-wind"></i>',
+            "unknown":'<i class="fas fa-question"></i>'
+        }
         window.content(`
-        {}
-        <b>
-        <i class="fas fa-thermometer-half" style=""></i> {}℃,
-        <i class="fas fa-tint"></i> {}%,
-        <i class="fas fa-wind"></i> {}m/s,
-        <i class="fas fa-cloud-download-alt"></i> {}hPa
+        <b style="color:#fefefe;">
+        　{}　
+        <i class="fas fa-thermometer-half"></i> {}℃　
+        <i class="fas fa-tint"></i> {}%　
+        <i class="fas fa-wind"></i> {}m/s　
+        <i class="fas fa-cloud-download-alt"></i> {}hPa　
         </b>`.format(
-            '<img src="{}" style="width:{}px;height:{}px;">,'.format(icon,iconSize,iconSize),
+            icon[weather.weather[0].icon],
             weather.main.temp,
             weather.main.humidity,
             weather.main.pressure,
@@ -571,8 +590,7 @@ var main = function(){
 
     // 時計を表示
     var options = {
-        content:'<i class="far fa-clock"></i> {}:{}:{}'.format("00","00","00"),
-        modal: false,
+        content:'<b style="color:#fefefe;">　<i class="far fa-clock"></i> {}:{}:{}</b>'.format("00","00","00"),
         position:[-10,-10],
         closeButton:false,
     };
@@ -583,15 +601,14 @@ var main = function(){
         var now_h = now.getHours();
         var now_m = now.getMinutes();
         var now_s = now.getSeconds();
-        watch.content('<i class="far fa-clock"></i> {}:{}:{}'.format(
+        watch.content('<b style="color:#fefefe;">　<i class="far fa-clock"></i> {}:{}:{}</b>'.format(
             zeroPadding(now_h,2),zeroPadding(now_m,2),zeroPadding(now_s,2)));
     },1000);
 
     // 気象情報
     var options = {
         content:"",
-        modal: false,
-        position:[120,-10],
+        position:[144,-10],
         closeButton:false,
     };
     var weatherInfo =  L.control.window(map, options).show();
