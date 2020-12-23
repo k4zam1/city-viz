@@ -33,16 +33,18 @@
     margin: 8px;
 
     /** BOX SHADOW **/
+    /*
     -webkit-box-shadow: 2px 2px 10px 0px rgba(0,0,0,0.75);
     -moz-box-shadow: 2px 2px 10px 0px rgba(0,0,0,0.75);
     box-shadow: 2px 2px 10px 0px rgba(0,0,0,0.75);
+    */
 }
 
 .control-window{
-    background-color: #3e3e3e;
-    color: #fefefe;
-    font: 14px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
-    opacity:0.8;
+    background-color:#ffb142;
+    color: black;
+    font: 20px/1.5 "Helvetica Neue", Arial, Helvetica, sans-serif;
+    opacity:0.9;
 }
 
 

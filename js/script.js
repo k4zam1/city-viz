@@ -441,11 +441,15 @@ var setWeatherInfo = function(window){
         var icon = "img/icons/" + weather.weather[0].icon + ".png";
         var iconSize = 70;
         window.content(`
-        {}<br/>
-        気温:{}℃<br/>
-        湿度:{}%<br/>
-        気圧:{}hPa<br/>
-        風速:{}m/s<br/>`.format(
+        {}
+        <div style="padding-left:60px;">
+        <b>
+        <i class="fas fa-thermometer-half" style=""></i> {}℃<br/>
+        <i class="fas fa-tint"></i> {}%<br/>
+        <i class="fas fa-wind"></i> {}m/s<br/>
+        <i class="fas fa-cloud-download-alt"></i> {}hPa<br/>
+        </b>
+        </div>`.format(
             '<center><img src="{}" style="width:{}px;height:{}px;"></center>'.format(icon,iconSize,iconSize),
             weather.main.temp,
             weather.main.humidity,
