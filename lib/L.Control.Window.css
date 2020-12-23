@@ -49,11 +49,16 @@
 
 
 .leaflet-control-window .titlebar{
+    /*
     min-height: 38px;
+    */
     cursor: grab;
     cursor: -webkit-grab;
     cursor: -moz-grab;
+    /*
     padding: 10px 45px 10px 10px;
+    */
+    padding: 0px 0px 10px 10px;
 }
 
 .leaflet-control-window .close {
@@ -85,14 +90,16 @@
 
 .leaflet-control-window .content{
     padding: 8px;
+    /*
     margin-top: -10px;
+    */
     z-index:29;
     overflow: auto;
 }
 
 .leaflet-control-window .promptButtons{
     text-align: right;
-    padding: 16px;
+    /*padding: 16px;*/
 }
 
 .leaflet-control-window button{

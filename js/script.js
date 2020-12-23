@@ -439,18 +439,16 @@ var openWeatherMap = "https://api.openweathermap.org/data/2.5/weather?q=Yonezawa
 var setWeatherInfo = function(window){
     d3.json(openWeatherMap,function(error,weather){
         var icon = "img/icons/" + weather.weather[0].icon + ".png";
-        var iconSize = 70;
+        var iconSize = 23;
         window.content(`
         {}
-        <div style="padding-left:60px;">
         <b>
-        <i class="fas fa-thermometer-half" style=""></i> {}℃<br/>
-        <i class="fas fa-tint"></i> {}%<br/>
-        <i class="fas fa-wind"></i> {}m/s<br/>
-        <i class="fas fa-cloud-download-alt"></i> {}hPa<br/>
-        </b>
-        </div>`.format(
-            '<center><img src="{}" style="width:{}px;height:{}px;"></center>'.format(icon,iconSize,iconSize),
+        <i class="fas fa-thermometer-half" style=""></i> {}℃,
+        <i class="fas fa-tint"></i> {}%,
+        <i class="fas fa-wind"></i> {}m/s,
+        <i class="fas fa-cloud-download-alt"></i> {}hPa
+        </b>`.format(
+            '<img src="{}" style="width:{}px;height:{}px;">,'.format(icon,iconSize,iconSize),
             weather.main.temp,
             weather.main.humidity,
             weather.main.pressure,
@@ -573,25 +571,32 @@ var main = function(){
 
     // 時計を表示
     var options = {
-        title:'<i class="far fa-clock"></i> {}:{}:{}'.format("00","00","00"),
-        content:"",
+        content:'<i class="far fa-clock"></i> {}:{}:{}'.format("00","00","00"),
         modal: false,
-        position:'topLeft',
+        position:[-10,-10],
         closeButton:false,
     };
     var watch =  L.control.window(map, options).show();
-    setWeatherInfo(watch);
     // 時計の更新
     setInterval(function(){
         var now = new Date();
         var now_h = now.getHours();
         var now_m = now.getMinutes();
         var now_s = now.getSeconds();
-        watch.title('　<i class="far fa-clock"></i> {}:{}:{}'.format(
+        watch.content('<i class="far fa-clock"></i> {}:{}:{}'.format(
             zeroPadding(now_h,2),zeroPadding(now_m,2),zeroPadding(now_s,2)));
     },1000);
-    // 気象情報の更新
+
+    // 気象情報
+    var options = {
+        content:"",
+        modal: false,
+        position:[120,-10],
+        closeButton:false,
+    };
+    var weatherInfo =  L.control.window(map, options).show();
+    setWeatherInfo(weatherInfo);
     setInterval(function(){
-        setWeatherInfo(watch);
+        setWeatherInfo(weatherInfo);
     },1000*60);
 }();
