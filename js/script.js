@@ -614,6 +614,7 @@ var main = function(){
         content:"",
         position:[144,-10],
         closeButton:false,
+        maxWidth:1000
     };
     var weatherInfo =  L.control.window(map, options).show();
     setWeatherInfo(weatherInfo);
