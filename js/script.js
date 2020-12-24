@@ -434,7 +434,6 @@ class Bus {
 }
 
 
-//! iconsをアップデートする
 var openWeatherMap = "https://api.openweathermap.org/data/2.5/weather?q=Yonezawa,jp&appid=8ab25e8d4baa9730b8beb3fb14b07042&units=metric&lang=ja";
 var setWeatherInfo = function(window){
     d3.json(openWeatherMap,function(error,weather){
@@ -458,6 +457,10 @@ var setWeatherInfo = function(window){
             "50d":'<i class="fas fa-wind"></i>',
             "50n":'<i class="fas fa-wind"></i>',
             "unknown":'<i class="fas fa-question"></i>'
+        };
+        var iconKey = weather.weather[0].icon;
+        if(!Object.keys(icon).includes(iconKey)){
+            iconKey = "unknown";
         }
         window.content(`
         <b style="color:#fefefe;">
@@ -467,7 +470,7 @@ var setWeatherInfo = function(window){
         <i class="fas fa-wind"></i> {}m/s　
         <i class="fas fa-cloud-download-alt"></i> {}hPa　
         </b>`.format(
-            icon[weather.weather[0].icon],
+            icon[iconKey],
             weather.main.temp,
             weather.main.humidity,
             weather.main.pressure,
@@ -589,8 +592,9 @@ var main = function(){
     })
 
     // 時計を表示
+    var watchTemplate = '<b style="color:#fefefe;">　<i class="far fa-clock"></i> {}:{}:{}</b>';
     var options = {
-        content:'<b style="color:#fefefe;">　<i class="far fa-clock"></i> {}:{}:{}</b>'.format("00","00","00"),
+        content:watchTemplate.format("00","00","00"),
         position:[-10,-10],
         closeButton:false,
     };
@@ -601,7 +605,7 @@ var main = function(){
         var now_h = now.getHours();
         var now_m = now.getMinutes();
         var now_s = now.getSeconds();
-        watch.content('<b style="color:#fefefe;">　<i class="far fa-clock"></i> {}:{}:{}</b>'.format(
+        watch.content(watchTemplate.format(
             zeroPadding(now_h,2),zeroPadding(now_m,2),zeroPadding(now_s,2)));
     },1000);
 
